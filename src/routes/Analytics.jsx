@@ -52,18 +52,16 @@ function Analytics({ darkMode }) {
 
   const { attendance_today, attendance_this_month, ag_group_attendance_today, ag_group_attendance_month, attendance_last_six_months, ag_group_attendance_last_six_months, attendance_past_one_year, ag_group_attendance_last_12_months } = attendanceData;
 
-  const totalMembers = 100;
-  const presentToday = attendance_today.total_attendance_percentage || 50; // Example attendance
+  const presentToday = attendance_today.total_attendance_percentage; 
 
   const gaugeData = {
     datasets: [
       {
-        data: [presentToday, 100 - presentToday], // Present vs Absent
-        backgroundColor: ["#4CAF50", "#E0E0E0"], // Green for present, Gray for absent
-        borderWidth: 0,
-        cutout: "80%", // Makes it a gauge
-        circumference: 180, // Half-circle gauge
-        rotation: 270, // Starts from bottom
+        data: [presentToday, 100 - presentToday],
+        backgroundColor: ["#4CAF50", "#E0E0E0"],
+        cutout: "80%",        
+        circumference: 180,
+        rotation: 270,
       },
     ],
   };

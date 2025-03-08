@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Users, CalendarCheck, BarChart3, Settings, Church, Group, Contact } from 'lucide-react';
+import { Users, CalendarCheck, BarChart3, Settings, Church, Group, Contact, Medal } from 'lucide-react';
 
 const Sidebar = ({ onClose, darkMode }) => {
   const navigate = useNavigate();
@@ -11,6 +11,7 @@ const Sidebar = ({ onClose, darkMode }) => {
     { icon: Group, label: 'AG Groups', path: '/groups'},
     { icon: CalendarCheck, label: 'Attendance', path: '/attendance' },
     { icon: Contact, label: 'Visitors', path: '/visitors'},
+    { icon: Medal, label: 'Leaders', path: '/leaders'},
     { icon: BarChart3, label: 'Analytics', path: '/analytics' },
     { icon: Settings, label: 'Settings', path: '/settings' }
   ];

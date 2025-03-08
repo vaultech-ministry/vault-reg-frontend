@@ -115,9 +115,9 @@ function AgGroups({ darkMode }) {
         <h1 className={`text-2xl font-bold ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Accountability Groups</h1>
       </div>
       <div className='flex justify-end m-4'>
-        <button 
+        {/* <button 
           onClick={() => setShowModal(true)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">Add Group</button>
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">Add Group</button> */}
       </div>
       <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
         {groups.map((group, index) => (

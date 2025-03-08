@@ -11,6 +11,17 @@ const MembersList = ({ darkMode }) => {
   const [selectedMember, setSelectedMember] = useState(null);
   const [isLoading, setIsLoading] = useState(false)
   const [showForm, setShowForm] = useState(false);
+  const [searchTerms, setSearchTerms] = useState({
+    name: "",
+    location: "",
+    gender: "",
+    school: "",
+    phone: "",
+    ag_name: "",
+  });
+  const [sortOrder, setSortOrder] = useState("");
+  const [ageFilter, setAgeFilter] = useState("");
+  const [ageGroup, setAgeGroup] = useState("");
   const api = import.meta.env.VITE_API_URL
 
   useEffect(() => {
@@ -30,6 +41,55 @@ const MembersList = ({ darkMode }) => {
     }
   };
 
+  const handleSearch = (e, field) => {
+    setSearchTerms({ ...searchTerms, [field]: e.target.value.toLowerCase() })
+  }
+
+  function calculateAge(dob) {
+    const today = new Date();
+    const birthDate = new Date(dob);
+    let age = today.getFullYear() - birthDate.getFullYear();
+
+    const hasBirthdayPassed = today.getMonth() > birthDate.getMonth() ||
+      (today.getMonth() === birthDate.getMonth() && today.getDate() >= birthDate.getDate());
+
+    if (!hasBirthdayPassed) {
+      age--;
+    }
+    return age;
+  }
+
+  function checkAgeGroup(dob, group) {
+    const age = calculateAge(dob);
+    if (group === "10-13") return age >= 10 && age <= 13;
+    if (group === "14-18") return age >= 14 && age <= 18;
+    if (group === "19-23") return age >= 19 && age <= 23;
+    if (group === "24-28") return age >= 24 && age <= 28;
+    if (group === "29 and above") return age >= 29;
+    return true;
+  }
+
+  const filteredMembers = members.filter((member) => {
+    const fullName = `${member.first_name} ${member.second_name} ${member.sur_name || ""}`.toLowerCase();
+    return (
+      (!searchTerms.name || fullName.includes(searchTerms.name)) &&
+      (!searchTerms.ag_name || member.ag_name?.toLowerCase().includes(searchTerms.ag_name)) &&
+      (!searchTerms.location || member.location?.toLowerCase().includes(searchTerms.location)) &&
+      (!searchTerms.gender || member.gender?.toLowerCase().includes(searchTerms.gender)) &&
+      (!searchTerms.school || member.school?.toLowerCase().includes(searchTerms.school)) &&
+      (!searchTerms.phone || member.phone?.includes(searchTerms.phone)) &&
+      (!ageFilter || calculateAge(member.date_of_birth) === parseInt(ageFilter)) &&
+      (!ageGroup || checkAgeGroup(member.date_of_birth, ageGroup))
+    );
+  });
+
+  const sortedMembers = [...filteredMembers].sort((a, b) => {
+    if (!sortOrder) return 0;
+    const valueA = a.first_name.toLowerCase();
+    const valueB = b.first_name.toLowerCase();
+    return sortOrder === "asc" ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+  });
+
   const handleEdit = async (member) => {
     setSelectedMember(member)
     setShowForm(true)
@@ -40,7 +100,6 @@ const MembersList = ({ darkMode }) => {
     try {
       const response = await fetch(`${api}member/${memberId}`, {
         method: "DELETE",
-        
       })
       if (response.ok) {
         toast.success('Member has been deleted')
@@ -54,39 +113,33 @@ const MembersList = ({ darkMode }) => {
     }
   };
 
-  // if (showForm) {
-  //   return (
-  //     <div className={`p-6 ${darkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900'}`}>
-  //       <div className="flex justify-between items-center mb-6">
-  //         <h2 className="text-xl font-semibold">
-  //           {selectedMember ? 'Edit Member' : 'Add New Member'}
-  //         </h2>
-  //         <button
-  //           onClick={() => {
-  //             setShowForm(false);
-  //             setSelectedMember(null);
-  //           }}
-  //           className={`text-sm ${darkMode ? 'text-gray-400 hover:text-gray-100' : 'text-gray-600 hover:text-gray-900'}`}
-  //         >
-  //           Cancel
-  //         </button>
-  //       </div>
-  //       <MemberForm
-  //         initialData={selectedMember || undefined}
-  //         onSuccess={(updatedMember) => {
-  //           setMembers(members.map(m => (m.id === updatedMember.id ? updatedMember : m)))
-  //           setShowForm(false)
-  //           setSelectedMember(null)
-  //         }}
-  //         membersApi={() => fetchMembers()}
-  //         darkMode={darkMode}
-  //       />
-  //     </div>
-  //   );
-  // }
-
   return (
     <div>
+      <div className='flex flex-col md:flex-row md:items-center justify-between p-4 gap-3'>
+      <div className='flex flex-col md:flex-row md:items-center gap-3 w-full md:w-auto'>
+      <input type="number" placeholder="Filter by Age" onChange={(e) => setAgeFilter(e.target.value)} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
+                    darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
+                }`} />
+
+      <select onChange={(e) => setAgeGroup(e.target.value)} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
+                    darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
+                }`}>
+          <option value="">Select Age Group</option>
+          <option value="10-13">10-13</option>
+          <option value="14-18">14-18</option>
+          <option value="19-23">19-23</option>
+          <option value="24-28">24-28</option>
+          <option value="29 and above">29 and above</option>
+      </select>
+
+      <select onChange={(e) => setSortOrder(e.target.value)} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
+                    darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
+                }`}>
+        <option value="">Sort by Name</option>
+        <option value="asc">A → Z</option>
+        <option value="desc">Z → A</option>
+      </select>
+      </div>
       <div className="flex justify-end p-4">
         <button
           onClick={() => setShowForm(true)}
@@ -96,7 +149,28 @@ const MembersList = ({ darkMode }) => {
           Add Member
         </button>
       </div>
+      </div>
       <div className="overflow-x-auto">
+      <div className="flex flex-cols justify-between p-4 gap-3">
+        <input type="text" placeholder="Search by Name" onChange={(e) => handleSearch(e, "name")} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
+                    darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
+                }`} />
+        <input type="text" placeholder="Search by AG-Group" onChange={(e) => handleSearch(e, "ag_name")} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
+                    darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
+                }`} />
+        <input type="text" placeholder="Search by Location" onChange={(e) => handleSearch(e, "location")} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
+                    darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
+                }`} />
+        <input type="text" placeholder="Search by Gender" onChange={(e) => handleSearch(e, "gender")} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
+                    darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
+                }`} />
+        <input type="text" placeholder="Search by Phone" onChange={(e) => handleSearch(e, "phone")} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
+                    darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
+                }`} />
+        <input type="text" placeholder="Search by School" onChange={(e) => handleSearch(e, "school")} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
+                    darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
+                }`} />
+      </div>
         <table className={`min-w-full divide-y ${darkMode ? 'divide-gray-700 bg-gray-800' : 'divide-gray-200 bg-white'}`}>
           <thead className={`${darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-50 text-gray-500'}`}>
             <tr>
@@ -112,7 +186,7 @@ const MembersList = ({ darkMode }) => {
             </tr>
           </thead>
           <tbody className={`${darkMode ? 'bg-gray-900 divide-gray-700' : 'bg-white divide-gray-200'}`}>
-            {members.map((member) => (
+            {sortedMembers.map((member) => (
               <tr key={member.id}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className={`text-sm font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>

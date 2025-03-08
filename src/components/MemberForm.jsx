@@ -1,10 +1,47 @@
+import { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-hot-toast';
 import { X } from 'lucide-react';
+import LoadingSpinner from './LoadingSpinner';
 
 const MemberForm = ({ initialData, onSuccess, membersApi, darkMode, onClose }) => {
+    const [loading, setIsLoading] = useState(false)
+    const [agGroups, setAgGroups] = useState()
     const api = import.meta.env.VITE_API_URL
+
+    useEffect(() => {
+        const fetchGroups = async () => {
+            try {
+                const response = await fetch(`${api}group`);
+                if (!response.ok) throw new Error("Failed to fetch AG Groups");
+                const data = await response.json();
+                setAgGroups(data);
+            } catch (error) {
+                console.error("Error fetching AG Groups:", error);
+            }
+        };
+        fetchGroups();
+    }, []);
+
+    const schoolType = {
+        "University/College": "university",
+        "High School": "high_school",
+        "Primary School": "primary_school",
+        "Other": "other"
+    }
+
+    const genderOptions = {
+        Telios: "telios",
+        Elysian: "elysian"
+    }
+
+    const memberStatus = {
+        active: "active",
+        inactive: "inactive"
+    }
+
+    const phoneRegex = /^(\+254\d{9}|07\d{8}|01\d{8}|\d{10,15})$/;
 
     const formik = useFormik({
         initialValues: {
@@ -15,7 +52,8 @@ const MemberForm = ({ initialData, onSuccess, membersApi, darkMode, onClose }) =
             location: initialData?.location || '',
             phone: initialData?.phone || '',
             altPhone: initialData?.alt_phone || '',
-            isStudent: initialData?.is_student === 'Yes' || false,
+            email: initialData?.email || '',
+            isStudent: initialData?.is_student || false,
             school_type: initialData?.school_type || '',
             school: initialData?.school || '',
             occupation: initialData?.occupation || '',
@@ -33,15 +71,24 @@ const MemberForm = ({ initialData, onSuccess, membersApi, darkMode, onClose }) =
             secondName: Yup.string().required('Required'),
             date_of_birth: Yup.date().required('Required'),
             location: Yup.string().required('Required'),
-            phone: Yup.string().required('Required'),
+            phone: Yup.string()
+                .matches(phoneRegex, "Invalid phone number format")
+                .required('Required'),
+            alt_phone: Yup.string()
+                .matches(phoneRegex, "Invalid phone number format"),
             gender: Yup.string().required('Required'),
             status: Yup.string().required('Required'),
             contact_name: Yup.string().required('Required'),
-            contact_phone: Yup.string().required('Required'),
-            contact_alt_phone: Yup.string().required('Required'),
+            contact_phone: Yup.string()
+                .matches(phoneRegex, "Invalid phone number format")
+                .required('Required'),
+            contact_alt_phone: Yup.string()
+                .matches(phoneRegex, "Invalid phone number format")
+                .required('Required'),
             relationship: Yup.string().required('Required'),
         }),
         onSubmit: async (values, { setSubmitting, resetForm }) => {
+            setIsLoading(true)
             try {
                 const memberData = {
                     first_name: values.firstName,
@@ -51,11 +98,12 @@ const MemberForm = ({ initialData, onSuccess, membersApi, darkMode, onClose }) =
                     location: values.location,
                     phone: values.phone,
                     alt_phone: values.altPhone,
-                    is_student: values.isStudent ? "Yes" : "No",
-                    school_type: values.isStudent ? values.school_type : '',
-                    school: values.isStudent ? values.school : '',
+                    email: values.email,
+                    is_student: values.isStudent,
+                    school_type: values.isStudent ? schoolType[values.school_type] : null,
+                    school: values.isStudent ? values.school : null,
                     occupation: values.occupation,
-                    ag_group: parseInt(values.group),
+                    ag_group: values.group,
                     gender: values.gender,
                     status: values.status,
                     contact_name: values.contact_name,
@@ -93,6 +141,7 @@ const MemberForm = ({ initialData, onSuccess, membersApi, darkMode, onClose }) =
             } finally {
                 setSubmitting(false);
                 membersApi();
+                setIsLoading(false)
             }
         },
     });
@@ -112,33 +161,34 @@ const MemberForm = ({ initialData, onSuccess, membersApi, darkMode, onClose }) =
                     <InputField formik={formik} name="firstName" label="First Name" darkMode={darkMode} />
                     <InputField formik={formik} name="secondName" label="Second Name" darkMode={darkMode} />
                     <InputField formik={formik} name="surName" label="Sur Name" darkMode={darkMode} />
-                    <RadioField formik={formik} name="gender" label="Gender" options={["Telios", "Elysian"]} darkMode={darkMode} />
+                    <RadioField formik={formik} name="gender" label="Gender" options={genderOptions} darkMode={darkMode} />
                     <InputField formik={formik} name="date_of_birth" label="Date of Birth" type="date" darkMode={darkMode} />
                     <InputField formik={formik} name="location" label="Location" darkMode={darkMode} />
                     <InputField formik={formik} name="phone" label="Phone" type="tel" darkMode={darkMode} />
                     <InputField formik={formik} name="altPhone" label="Alternative Phone" type="tel" darkMode={darkMode} />
-                    <SelectField formik={formik} name="status" label="Status" options={["active", "inactive"]} darkMode={darkMode} />
+                    <InputField formik={formik} name="email" label="Email" type="email" darkMode={darkMode}/>
+                    <SelectField formik={formik} name="status" label="Status" options={memberStatus} darkMode={darkMode} />
                     <CheckboxField formik={formik} name="isStudent" label="Student?" darkMode={darkMode} />
                     
                     {formik.values.isStudent && (
                         <>
-                            <SelectField formik={formik} name="school_type" label="School Type" options={["Primary", "Secondary", "University"]} darkMode={darkMode} />
+                            <SelectField formik={formik} name="school_type" label="School Type" options={schoolType} darkMode={darkMode} />
                             <InputField formik={formik} name="school" label="School Name" darkMode={darkMode} />
                         </>
                     )}
 
                     <InputField formik={formik} name="occupation" label="Occupation" darkMode={darkMode} />
-                    <SelectField formik={formik} name="group" label="AG Group" options={["1", "2", "3", "4"]} darkMode={darkMode} />
+                    <SelectField formik={formik} name="group" label="AG Group" options={agGroups} darkMode={darkMode} />
 
-                    {/* Emergency Contact Fields */}
-                    <h2 className={`text-lg font-semibold col-span-1 md:col-span-2 ${darkMode ? 'text-gray-100' : 'text-gray-800'}`}>
-                        Emergency Contact
-                    </h2>
-                    <InputField formik={formik} name="contact_name" label="Contact Name" darkMode={darkMode} />
-                    <InputField formik={formik} name="contact_phone" label="Contact Phone" type="tel" darkMode={darkMode} />
-                    <InputField formik={formik} name="contact_alt_phone" label="Alternative Contact Phone" type="tel" darkMode={darkMode} />
-                    <InputField formik={formik} name="relationship" label="Relationship" darkMode={darkMode} />
-
+                    <fieldset className="col-span-1 md:col-span-2 mt-6">
+                        <legend className="text-lg font-medium mb-4">Emergency Contact (next of kin)</legend>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <InputField formik={formik} name="contact_name" label="Contact Name" darkMode={darkMode} />
+                                <InputField formik={formik} name="contact_phone" label="Contact Phone" type="tel" darkMode={darkMode} />
+                                <InputField formik={formik} name="contact_alt_phone" label="Alternative Contact Phone" type="tel" darkMode={darkMode} />
+                                <InputField formik={formik} name="relationship" label="Relationship" darkMode={darkMode} />
+                            </div>
+                    </fieldset>                    
                     <button
                         type="submit"
                         disabled={formik.isSubmitting}
@@ -179,18 +229,36 @@ const CheckboxField = ({ formik, name, label, darkMode }) => (
     </div>
 );
 
-const SelectField = ({ formik, name, label, options, darkMode }) => (
+const SelectField = ({ formik, name, label, options = [], darkMode }) => (
     <div>
-        <label htmlFor={name} className={`block mb-1 font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>{label}</label>
+        <label htmlFor={name} className={`block mb-1 font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+            {label}
+        </label>
         <select
             id={name}
             {...formik.getFieldProps(name)}
-            className={`w-full p-3 border rounded-lg ${darkMode ? 'bg-gray-700 text-gray-100 border-gray-600 focus:ring-2 focus:ring-blue-500' : 'bg-white text-gray-900 border-gray-300 focus:ring-2 focus:ring-blue-500'}`}
+            className={`w-full p-3 border rounded-lg ${
+                darkMode
+                    ? 'bg-gray-700 text-gray-100 border-gray-600 focus:ring-2 focus:ring-blue-500'
+                    : 'bg-white text-gray-900 border-gray-300 focus:ring-2 focus:ring-blue-500'
+            }`}
         >
             <option value="" disabled>Select {label}</option>
-            {options.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
+            {Array.isArray(options)
+                ? options.map((option, index) => (
+                      <option key={index} value={option.id}>
+                          {option.group_name}
+                      </option>
+                  ))
+                : Object.keys(options || {}).map((key, index) => (
+                      <option key={index} value={options[key]}>
+                          {key}
+                      </option>
+                  ))}
         </select>
-        {formik.touched[name] && formik.errors[name] && <p className="text-red-500 text-sm">{formik.errors[name]}</p>}
+        {formik.touched[name] && formik.errors[name] && (
+            <p className="text-red-500 text-sm">{formik.errors[name]}</p>
+        )}
     </div>
 );
 
@@ -198,17 +266,17 @@ const RadioField = ({ formik, name, label, options, darkMode }) => (
     <div>
         <label className={`block mb-1 font-medium ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>{label}</label>
         <div className="flex items-center space-x-4">
-            {options.map((option) => (
-                <label key={option} className={`flex items-center ${darkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+        {Object.entries(options).map(([label, value]) => (
+                <label key={value} className="flex items-center">
                     <input
                         type="radio"
                         name={name}
-                        value={option}
-                        checked={formik.values[name] === option}
+                        value={value}
+                        checked={formik.values[name] === value}
                         onChange={formik.handleChange}
-                        className={`mr-2 h-4 w-4 ${darkMode ? 'text-blue-600' : 'text-blue-600'} focus:ring-blue-500`}
+                        className="mr-2 h-4 w-4 text-blue-500 focus:ring-blue-500"
                     />
-                    {option}
+                    {label}
                 </label>
             ))}
         </div>
