@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { Tooltip } from 'react-tooltip';
 import VisitorAddModal from './VisitorAddModal';
 import { format } from 'date-fns';
+import LoadingSpinner from './LoadingSpinner';
 
 function VisitorsList({ darkMode }) {
     const [visitors, setVisitors] = useState([])
@@ -75,6 +76,7 @@ function VisitorsList({ darkMode }) {
         return 0
     })
     
+    if (isLoading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
 
   return (
     <div className='p-4'>
@@ -111,7 +113,7 @@ function VisitorsList({ darkMode }) {
                     onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
                     className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
                 >
-                    {sortOrder === "asc" ? "⬆️ Ascending" : "⬇️ Descending"}
+                    {sortOrder === "asc" ? "⬆️ A-Z" : "⬇️ Z-A"}
                 </button>
             </div>
             </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types'
 import { CheckCircle, XCircle, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 const Attendance = ({ darkMode }) => {
   const [attendance, setAttendance] = useState({});
@@ -91,6 +92,8 @@ const Attendance = ({ darkMode }) => {
     );
     setFilteredMembers(filtered);
   };
+
+  if (isLoading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
 
   return (
     <div className={`p-6 ${darkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900'}`}>

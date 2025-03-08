@@ -4,6 +4,7 @@ import { Pencil, Trash2, UserPlus } from 'lucide-react';
 import MemberForm from './MemberForm';
 import toast from 'react-hot-toast';
 import { Tooltip } from 'react-tooltip'
+import LoadingSpinner from './LoadingSpinner';
 
 
 const MembersList = ({ darkMode }) => {
@@ -112,6 +113,8 @@ const MembersList = ({ darkMode }) => {
       setIsLoading(false)
     }
   };
+
+  if (isLoading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
 
   return (
     <div>

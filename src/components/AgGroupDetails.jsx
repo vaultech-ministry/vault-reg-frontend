@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { useParams } from 'react-router-dom'
+import LoadingSpinner from './LoadingSpinner'
 
 function AgGroupDetails({ darkMode }) {
   const { id } = useParams()
@@ -44,7 +45,7 @@ function AgGroupDetails({ darkMode }) {
     }
   }
 
-  if (loading) return <p className="text-center">Loading...</p>
+  if (loading) return <p className="text-center"><LoadingSpinner /></p>
 
   return (
     <div className={`p-6 ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'}`}>

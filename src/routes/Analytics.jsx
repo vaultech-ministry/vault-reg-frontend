@@ -12,6 +12,7 @@ import {
   BarElement,
   BarController,
 } from "chart.js";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 ChartJS.register(CategoryScale, LinearScale, Title, Tooltip, Legend, ArcElement, BarElement, BarController);
 
@@ -47,7 +48,7 @@ function Analytics({ darkMode }) {
     </div>
   );
 
-  if (isLoading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>Loading...</p>;
+  if (isLoading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
   if (!attendanceData) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>No attendance data available.</p>;
 
   const { attendance_today, attendance_this_month, ag_group_attendance_today, ag_group_attendance_month, attendance_last_six_months, ag_group_attendance_last_six_months, attendance_past_one_year, ag_group_attendance_last_12_months } = attendanceData;

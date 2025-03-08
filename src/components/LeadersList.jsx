@@ -3,6 +3,7 @@ import { Trash2, Pencil, UserPlus} from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Tooltip } from 'react-tooltip';
 import LeadersAddModal from './LeadersAddModal';
+import LoadingSpinner from './LoadingSpinner';
 
 function LeadersList({ darkMode }) {
     const [leaders, setLeaders] = useState([])
@@ -61,7 +62,9 @@ function LeadersList({ darkMode }) {
         `${leader.member.first_name} ${leader.member.last_name} ${leader.member.sur_name || ""} ${leader.member.gender} ${leader.member.phone} ${leader.member.alt_phone} ${leader.department}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase())
-    )    
+    )  
+    
+    if (isLoading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
 
   return (
     <div className='p-4'>

@@ -3,6 +3,7 @@ import toast from 'react-hot-toast'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import AgGroupModal from '../components/AgGroupModal'
+import LoadingSpinner from '../components/LoadingSpinner'
 
 function AgGroups({ darkMode }) {
   const [groups, setGroups] = useState([])
@@ -108,6 +109,7 @@ function AgGroups({ darkMode }) {
       fetchDeleteAgGroup(groupId)
  }
 
+ if (loading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
 
   return (
     <div className={`p-8 ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'}`}>
