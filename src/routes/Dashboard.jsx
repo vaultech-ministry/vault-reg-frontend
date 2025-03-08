@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+import { Link } from 'react-router-dom'
 import StatsCard from '../components/StatsCard';
 import AttendanceCard from '../components/AttendanceCard';
 
@@ -58,9 +59,11 @@ const Dashboard = ({ darkMode }) => {
           <h1 className={`text-2xl font-bold ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Dashboard</h1>
           <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Welcome back, track your ministry's growth</p>
         </div>
-        <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
+        <Link 
+          to={'/attendance'}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">
           Take Attendance
-        </button>
+        </Link>
       </div>
 
       <StatsCard darkMode={darkMode}/>
@@ -83,8 +86,6 @@ const Dashboard = ({ darkMode }) => {
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Location</th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Phone</th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">DOB</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">School</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">E-Contact</th>
             </tr>
           </thead>
           <tbody className={`${darkMode ? 'bg-gray-900 divide-gray-700' : 'bg-white divide-gray-200'}`}>
@@ -112,18 +113,7 @@ const Dashboard = ({ darkMode }) => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{format(new Date(member.date_of_birth), 'MMM d, yyyy') || 'N/A'}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {member.school || 'N/A'}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {member.contact_name
-                  ? `${member.contact_name} - ${member.contact_phone} (${member.relationship})`
-                  : 'N/A'}
-                  </div>
-                </td>
+
               </tr>
             ))}
           </tbody>
@@ -131,8 +121,8 @@ const Dashboard = ({ darkMode }) => {
       </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} p-6 rounded-xl shadow-sm`}>
+        <div className="flex flex-col md:flex-row gap-8">
+          <div className={`w-full md:w-1/2 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} p-6 rounded-xl shadow-sm`}>
             <h2 className="text-lg font-semibold mb-4 text-gray-100">This week's Birthdays</h2>
 
             <div className="overflow-x-auto">
@@ -172,7 +162,7 @@ const Dashboard = ({ darkMode }) => {
             </div>
           </div>
 
-          <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} p-6 rounded-xl shadow-sm`}>
+          <div className={`w-full md:w-1/2 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} p-6 rounded-xl shadow-sm`}>
             <h2 className="text-lg font-semibold mb-4 text-gray-100">This Month's Birthdays</h2>
 
             <div className="overflow-x-auto">
