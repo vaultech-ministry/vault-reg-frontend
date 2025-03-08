@@ -85,13 +85,13 @@ function AttendanceCard({ darkMode }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6 mb-8">
         <ChartCard title="Today's Attendance Breakdown">
-          <div className="w-40 h-60">
+          <div className="w-60 h-60">
             <Pie data={todayPieChart}/>
           </div>
         </ChartCard>
 
         <ChartCard title="Today's Attendance by Gender">
-          <div className="w-40 h-60">
+          <div className="w-60 h-60">
             <Doughnut data={todayDonutChart} options={{ maintainAspectRatio: false }}/>
           </div>
         </ChartCard>
