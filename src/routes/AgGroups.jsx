@@ -131,7 +131,7 @@ function AgGroups({ darkMode }) {
             onClick={() => navigate(`/group/${group.id}/`)}
             >
             <div className='absolute top-2 right-2 z-20 flex space-x-2 py-2'>
-              <button
+              {/* <button
                 onClick={(e) => {
                   e.stopPropagation()
                   handleEdit(group)
@@ -172,7 +172,7 @@ function AgGroups({ darkMode }) {
                 }}
                 >
                 <Trash2 className="text-red-600 hover:text-red-800" size={14}/>
-              </button>
+              </button> */}
             </div>
 
               <div  
