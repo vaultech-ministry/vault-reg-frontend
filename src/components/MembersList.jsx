@@ -197,7 +197,7 @@ const MembersList = ({ darkMode }) => {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{member.ag_name}</div>
+                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{member.ag_name || 'N/A'}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{member.location}</div>
