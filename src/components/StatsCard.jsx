@@ -26,7 +26,7 @@ function StatsCard({darkMode}) {
     }
 
     const stats = [
-        { icon: Users, label: 'Total Members', value: [dashboardStats.total_members], change: '' },
+        { icon: Users, label: 'Total Members', value: [dashboardStats.total_members || 0], change: '' },
         { icon: UserCheck, label: 'Present Today/Absent Today', value: `${[dashboardStats.present_today]} / ${[dashboardStats.absent_today]}`, change: '' },
         { icon: TrendingUp, label: 'Growth Rate', value: `${[dashboardStats.growth_rate]}%`, change: '' },
         { icon: AlertCircle, label: 'Active/Inactive Members', value: `${[dashboardStats.active_members]} / ${[dashboardStats.inactive_members]}`, change: '' }
