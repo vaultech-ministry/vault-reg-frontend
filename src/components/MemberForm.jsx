@@ -83,8 +83,7 @@ const MemberForm = ({ initialData, onSuccess, membersApi, darkMode, onClose }) =
                 .matches(phoneRegex, "Invalid phone number format")
                 .required('Required'),
             contact_alt_phone: Yup.string()
-                .matches(phoneRegex, "Invalid phone number format")
-                .required('Required'),
+                .matches(phoneRegex, "Invalid phone number format"),
             relationship: Yup.string().required('Required'),
         }),
         onSubmit: async (values, { setSubmitting, resetForm }) => {
