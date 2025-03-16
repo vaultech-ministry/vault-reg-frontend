@@ -12,6 +12,7 @@ import Analytics from '../routes/Analytics';
 import AgGroupDetails from './AgGroupDetails';
 import Visitors from '../routes/Visitors';
 import Leaders from '../routes/Leaders';
+import Event from '../routes/Events';
 
 const PrivateRoute = ({ children }) => {
   return isAuthenticated() ? children : <Navigate to="/login" />
@@ -68,6 +69,7 @@ const Layout = () => {
         <Route path="/leaders" element={<PrivateRoute><Leaders darkMode={darkMode} /></PrivateRoute>} />
         <Route path="/settings" element={<PrivateRoute><Settings darkMode={darkMode} /></PrivateRoute>} />
         <Route path="/group/:id" element={<PrivateRoute><AgGroupDetails darkMode={darkMode} /></PrivateRoute>} />
+        <Route path="/vaultevents" element={<PrivateRoute><Event darkMode={darkMode} /></PrivateRoute>} />
         </Routes>
       </div>
     </div>
