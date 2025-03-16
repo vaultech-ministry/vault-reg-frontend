@@ -95,6 +95,9 @@ const Event = ({ darkMode }) => {
     <div>
       <div className='flex flex-col md:flex-row md:items-center justify-between p-4 gap-3'>
       <div className='flex flex-col md:flex-row md:items-center gap-3 w-full md:w-auto'>
+        <div>
+          <h2 className={`text-2xl font-bold ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Exchange Conference 2025 Registered Members</h2>
+        </div>
       {/* <input type="number" placeholder="Filter by Age" onChange={(e) => setAgeFilter(e.target.value)} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
                     darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
                 }`} />
@@ -129,7 +132,7 @@ const Event = ({ darkMode }) => {
       </div> */}
       </div>
       <div className="overflow-x-auto">
-      <div className="flex flex-cols justify-between p-4 gap-3">
+      {/* <div className="flex flex-cols justify-between p-4 gap-3">
         <input type="text" placeholder="Search by Name" onChange={(e) => handleSearch(e, "name")} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
                     darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
                 }`} />
@@ -148,7 +151,7 @@ const Event = ({ darkMode }) => {
         <input type="text" placeholder="Search by School" onChange={(e) => handleSearch(e, "school")} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
                     darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
                 }`} />
-      </div>
+      </div> */}
         <table className={`min-w-full divide-y ${darkMode ? 'divide-gray-700 bg-gray-800' : 'divide-gray-200 bg-white'}`}>
           <thead className={`${darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-50 text-gray-500'}`}>
             <tr>
