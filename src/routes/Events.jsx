@@ -160,7 +160,6 @@ const Event = ({ darkMode }) => {
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">DOB</th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">School</th>
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">E-Contact</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className={`${darkMode ? 'bg-gray-900 divide-gray-700' : 'bg-white divide-gray-200'}`}>
