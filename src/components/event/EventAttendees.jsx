@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import LoadingSpinner from '../LoadingSpinner';
 
 
-const EventAttendees = ({ darkMode, event_id }) => {
+const EventAttendees = ({ darkMode, eventId }) => {
   const [members, setMembers] = useState([]);
   const [selectedMember, setSelectedMember] = useState(null);
   const [isLoading, setIsLoading] = useState(false)
@@ -29,7 +29,7 @@ const EventAttendees = ({ darkMode, event_id }) => {
   const fetchMembers = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`${api}member-event?event_id=${event_id}`);
+      const response = await fetch(`${api}member-event?event_id=${eventId}`);
       
       const data = await response.json();
       console.log(data)
@@ -46,24 +46,25 @@ const EventAttendees = ({ darkMode, event_id }) => {
   }
 
 
-  // const filteredMembers = members.filter((member) => {
-  //   const fullName = `${member.first_name} ${member.second_name} ${member.sur_name || ""}`.toLowerCase();
-  //   return (
-  //     (!searchTerms.name || fullName.includes(searchTerms.name)) &&
-  //     (!searchTerms.ag_name || member.ag_group?.toLowerCase().includes(searchTerms.ag_name)) &&
-  //     (!searchTerms.location || member.location?.toLowerCase().includes(searchTerms.location)) &&
-  //     (!searchTerms.gender || member.gender?.toLowerCase().includes(searchTerms.gender)) &&
-  //     (!searchTerms.school || member.school_type?.toLowerCase().includes(searchTerms.school)) &&
-  //     (!searchTerms.phone || member.phone?.includes(searchTerms.phone)) &&
-  //   );
-  // });
+  const filteredMembers = members.filter((member) => {
+    const fullName = `${member.full_name}`.toLowerCase();
+    return (
+      (!searchTerms.name || fullName.includes(searchTerms.name)) &&
+      (!searchTerms.ag_name || member.ag_group?.toLowerCase().includes(searchTerms.ag_name)) &&
+      (!searchTerms.location || member.location?.toLowerCase().includes(searchTerms.location)) &&
+      (!searchTerms.gender || member.gender?.toLowerCase().includes(searchTerms.gender)) &&
+      (!searchTerms.school_type || member.school_type?.toLowerCase().includes(searchTerms.school_type)) &&
+      (!searchTerms.phone || member.phone?.includes(searchTerms.phone)) &&
+      (!ageGroup || member.age_group === ageGroup)
+    );
+  });
 
-  // const sortedMembers = [...filteredMembers].sort((a, b) => {
-  //   if (!sortOrder) return 0;
-  //   const valueA = a.first_name.toLowerCase();
-  //   const valueB = b.first_name.toLowerCase();
-  //   return sortOrder === "asc" ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
-  // });
+  const sortedMembers = [...filteredMembers].sort((a, b) => {
+    if (!sortOrder) return 0;
+    return sortOrder === "asc"
+      ? a.full_name.toLowerCase().localeCompare(b.full_name.toLowerCase())
+      : b.full_name.toLowerCase().localeCompare(a.full_name.toLowerCase());
+  });
 
   // const handleEdit = async (member) => {
   //   setSelectedMember(member)
@@ -118,7 +119,7 @@ const EventAttendees = ({ darkMode, event_id }) => {
 
       </div>
       <div className="overflow-x-auto">
-      {/* <div className="flex flex-cols justify-between p-4 gap-3">
+      <div className="flex flex-cols justify-between p-4 gap-3">
         <input type="text" placeholder="Search by Name" onChange={(e) => handleSearch(e, "name")} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
                     darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
                 }`} />
@@ -134,10 +135,10 @@ const EventAttendees = ({ darkMode, event_id }) => {
         <input type="text" placeholder="Search by Phone" onChange={(e) => handleSearch(e, "phone")} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
                     darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
                 }`} />
-        <input type="text" placeholder="Search by School" onChange={(e) => handleSearch(e, "school")} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
+        <input type="text" placeholder="Search by School" onChange={(e) => handleSearch(e, "school_type")} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
                     darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
                 }`} />
-      </div> */}
+      </div>
         <table className={`min-w-full divide-y ${darkMode ? 'divide-gray-700 bg-gray-800' : 'divide-gray-200 bg-white'}`}>
           <thead className={`${darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-50 text-gray-500'}`}>
             <tr>
@@ -152,7 +153,7 @@ const EventAttendees = ({ darkMode, event_id }) => {
             </tr>
           </thead>
           <tbody className={`${darkMode ? 'bg-gray-900 divide-gray-700' : 'bg-white divide-gray-200'}`}>
-            {members.map((member) => (
+            {sortedMembers.map((member) => (
               <tr key={member.id}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className={`text-sm font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>

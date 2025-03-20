@@ -71,7 +71,7 @@ const Layout = () => {
         <Route path="/settings" element={<PrivateRoute><Settings darkMode={darkMode} /></PrivateRoute>} />
         <Route path="/group/:id" element={<PrivateRoute><AgGroupDetails darkMode={darkMode} /></PrivateRoute>} />
         <Route path="/vaultevents" element={<PrivateRoute><Event darkMode={darkMode} /></PrivateRoute>} />
-        <Route path="/vaultevents/:id" element={<PrivateRoute><EventDetails darkMode={darkMode} /></PrivateRoute>} />
+        <Route path="/vaultevents/:eventId" element={<PrivateRoute><EventDetails darkMode={darkMode} /></PrivateRoute>} />
         </Routes>
       </div>
     </div>
