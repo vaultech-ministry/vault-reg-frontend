@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import EventDashboard from './EventDashboard';
 import EventAttendees from './EventAttendees';
 
 function EventDetails({ darkMode }) {
@@ -23,7 +24,7 @@ function EventDetails({ darkMode }) {
             </div>
 
             <div className="mt-4">
-                {activeTab === 'dashboard' && <EventDashboard eventId={eventId} />}
+                {activeTab === 'dashboard' && <EventDashboard eventId={eventId} darkMode={darkMode}/>}
                 {activeTab === 'attendees' && <EventAttendees eventId={eventId} darkMode={darkMode}/>}
                 {activeTab === 'organisers' && <EventOrganisers eventId={eventId} />}
                 {activeTab === 'attendance' && <EventAttendance eventId={eventId} />}
@@ -32,7 +33,7 @@ function EventDetails({ darkMode }) {
     );
 }
 
-const EventDashboard = ({ eventId }) => <div>Dashboard for event</div>;
+// const EventDashboard = ({ eventId }) => <div>Dashboard for event</div>;
 // const EventAttendees = ({ eventId }) => <div>Attendees list for event {eventId}</div>;
 const EventOrganisers = ({ eventId }) => <div>Organisers list for event</div>;
 const EventAttendance = ({ eventId }) => <div>Attendance records for event</div>;

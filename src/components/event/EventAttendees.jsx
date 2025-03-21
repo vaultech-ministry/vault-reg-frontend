@@ -32,7 +32,6 @@ const EventAttendees = ({ darkMode, eventId }) => {
       const response = await fetch(`${api}member-event?event_id=${eventId}`);
       
       const data = await response.json();
-      console.log(data)
       setMembers(data);
     } catch (error) {
       console.error('Error fetching members:', error);
