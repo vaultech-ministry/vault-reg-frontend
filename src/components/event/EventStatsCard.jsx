@@ -30,7 +30,7 @@ function EventStatsCard({ eventId, darkMode }) {
     const fetchEventStats = async () => {
         setLoading(true);
         try {
-            const response = await fetch(`http://127.0.0.1:8000/vault_api/eventstats?event_id=${eventId}`);
+            const response = await fetch(`${api}eventstats?event_id=${eventId}`);
             const data = await response.json();
             if (response.ok) {
                 setEventStats(data);

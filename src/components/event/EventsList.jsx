@@ -25,7 +25,7 @@ function EventsList({ darkMode }) {
 
     return (
         <div className="">
-            <section className="ml-6 mb-8">
+            <section className="ml-2 mb-8">
                 <h2 className="text-xl font-semibold mb-4">Current Events</h2>
                 {currentEvents.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -38,7 +38,7 @@ function EventsList({ darkMode }) {
                 )}
             </section>
 
-            <section className="ml-6 mb-8">
+            <section className="ml-2 mb-8">
                 <h2 className="text-xl font-semibold mb-4">Upcoming Events</h2>
                 {upcomingEvents.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
