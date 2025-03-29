@@ -68,7 +68,7 @@ function EventAttendance({ darkMode }) {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ attendee: attendeeId, date, status})
-      })''
+      })
       if (response.ok) {
         toast.success('Marked successfully')
         setAttendance((prev) => ({
