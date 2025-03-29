@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Pie, Doughnut, Bar } from "react-chartjs-2";
+import React, { useEffect, useState, Suspense, lazy } from "react";
+// import { Pie, Doughnut, Bar } from "react-chartjs-2";
 import toast from "react-hot-toast";
 import {
   Chart as ChartJS,
@@ -13,6 +13,10 @@ import {
   BarController,
 } from "chart.js";
 import LoadingSpinner from "../components/LoadingSpinner";
+
+const Pie = lazy(() => import("react-chartjs-2").then((module) => ({default: module.Pie})))
+const Doughnut = lazy(() => import("react-chartjs-2").then((module) => ({ default: module.Doughnut})))
+const Bar = lazy(() => import("react-chartjs-2").then((module) => ({ default: module.Bar})))
 
 ChartJS.register(CategoryScale, LinearScale, Title, Tooltip, Legend, ArcElement, BarElement, BarController);
 
@@ -257,6 +261,10 @@ function Analytics({ darkMode }) {
       <h1 className={`font-bold text-2xl ${darkMode ? "text-gray-100" : "text-gray-900"}`}>Attendance Analytics</h1>
       <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>Track attendance trends for your organization.</p>
 
+      {isLoading ? (
+        <AnalyticsLoadingSkeleton darkMode={darkMode} />
+      ) : (
+        <div>
         <div>
           <h1>Today's Attenance</h1>
         </div>
@@ -380,8 +388,17 @@ function Analytics({ darkMode }) {
           </div>
         </ChartCard>
         </div>
+        </div>
+      )}
+        
     </div>
   );
 }
 
 export default Analytics;
+
+function AnalyticsLoadingSkeleton({ darkMode }) {
+  return (
+   <div className="animate-pulse h-64 bg-gray-300 dark:bg-gray-700 rounded-lg"></div> 
+  )
+}

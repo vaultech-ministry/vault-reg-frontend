@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { Tooltip } from 'react-tooltip';
 import LeadersAddModal from './LeadersAddModal';
 import LoadingSpinner from './LoadingSpinner';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 function LeadersList({ darkMode }) {
     const [leaders, setLeaders] = useState([])
@@ -64,7 +65,7 @@ function LeadersList({ darkMode }) {
         .includes(searchTerm.toLowerCase())
     )  
     
-    if (isLoading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
+    // if (isLoading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
 
   return (
     <div className='p-4'>
@@ -100,7 +101,10 @@ function LeadersList({ darkMode }) {
                     <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            {isLoading ? (
+                <LeadersLoadingSkeleton darkMode={darkMode} />
+            ) : (
+                <tbody>
                 {filteredLeaders.map((leader) => (
                     <tr key={leader.id}>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -178,6 +182,7 @@ function LeadersList({ darkMode }) {
                     </tr>
                 ))}
             </tbody>
+            )}
         </table>
       </div>
 
@@ -199,3 +204,21 @@ function LeadersList({ darkMode }) {
 }
 
 export default LeadersList
+
+function LeadersLoadingSkeleton({ darkMode }) {
+    return (
+        <SkeletonTheme baseColor={darkMode ? "#2D2F33" : "#E0E0E0"} highlightColor={darkMode ? "#3A3C40" : "#F5F5F5"}>
+            <tbody className={`${darkMode ? 'bg-gray-900 divide-gray-700' : 'bg-white divide-gray-200'}`}>
+                {[...Array(6)].map((_, rowIndex) => (
+                    <tr key={rowIndex} className='animate-pulse'>
+                        {[...Array(6)].map((_, colIndex) => (
+                           <td key={colIndex} className='px-6 py-4 whitespace-nowrap'>
+                            <Skeleton height={30} className='rounded-md'/>
+                           </td> 
+                        ))}
+                    </tr>
+                ))}
+            </tbody>
+        </SkeletonTheme>
+    )
+}

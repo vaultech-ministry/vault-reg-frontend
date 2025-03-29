@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Pencil, Trash2, UserPlus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../LoadingSpinner';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 
 const EventAttendees = ({ darkMode, eventId }) => {
@@ -88,12 +89,12 @@ const EventAttendees = ({ darkMode, eventId }) => {
   //   }
   // };
 
-  if (isLoading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
+  // if (isLoading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
 
   return (
-    <div>
+    <div className={`${darkMode ? 'bg-gray-900 divide-gray-700' : 'bg-white divide-gray-200'}`}>
       <div className='flex flex-col md:flex-row md:items-center justify-between p-4 gap-3'>
-      <div className='flex flex-col md:flex-row md:items-center gap-3 w-full md:w-auto'>
+      <div className={`flex flex-col md:flex-row md:items-center gap-3 w-full md:w-auto`}>
         <div>
           <h2 className={`text-2xl font-bold ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Exchange Conference 2025 Registered Members</h2>
         </div>
@@ -151,7 +152,10 @@ const EventAttendees = ({ darkMode, eventId }) => {
               <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">E-Contact</th>
             </tr>
           </thead>
-          <tbody className={`${darkMode ? 'bg-gray-900 divide-gray-700' : 'bg-white divide-gray-200'}`}>
+          {isLoading ? (
+            <EventAttendeesLoadingSkeleton darkMode={darkMode} />
+          ) : (
+            <tbody className={`${darkMode ? 'bg-gray-900 divide-gray-700' : 'bg-white divide-gray-200'}`}>
             {sortedMembers.map((member) => (
               <tr key={member.id}>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -239,10 +243,31 @@ const EventAttendees = ({ darkMode, eventId }) => {
               </tr>
             ))}
           </tbody>
+          )}
+
         </table>
       </div>
+      
     </div>
   );
 };
 
 export default EventAttendees;
+
+function EventAttendeesLoadingSkeleton({ darkMode }) {
+  return (
+    <SkeletonTheme baseColor={darkMode ? "#2D2F33" : "#E0E0E0"} highlightColor={darkMode ? "#3A3C40" : "#F5F5F5"}>
+      <tbody>
+        {[...Array(10)].map((_, rowIndex) => (
+          <tr key={rowIndex} className='animate-pulse'>
+            {[...Array(8)].map((_, colIndex) => (
+              <td key={colIndex} className='px-6 py-4 whitespace-nowrap'>
+                <Skeleton height={30} className='rounded-md'/>
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </SkeletonTheme>
+  )
+}

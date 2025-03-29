@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { format } from 'date-fns'
 import { useParams } from 'react-router-dom'
 import LoadingSpinner from './LoadingSpinner'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 
 function AgGroupDetails({ darkMode }) {
   const { id } = useParams()
@@ -33,7 +35,7 @@ function AgGroupDetails({ darkMode }) {
   const fetchGroupMembers = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`${api}member?group_id=${id}`)
+      const response = await fetch(`${api}memberlist?group_id=${id}`)
       if (response.ok) {
         const data = await response.json()
         setMembers(data)
@@ -45,20 +47,17 @@ function AgGroupDetails({ darkMode }) {
     }
   }
 
-  if (loading) return <p className="text-center"><LoadingSpinner /></p>
+  // if (loading) return <p className="text-center"><LoadingSpinner /></p>
 
   return (
     <div className={`p-6 ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'}`}>
       {group && (
         <div className="mb-6">
           <h1 className="text-3xl font-bold">{group.group_name}</h1>
-          <p className="text-gray-400">{group.description}</p>
+          <p className="text-gray-400">{group.description ? group.description : 'No group description'}</p>
         </div>
       )}
       
-      {members.length === 0 ? (
-        <p className='text-center text-xl text-gray-500'>No members in this Group 😱 </p>
-      ) : (
         <div>
         <h2 className="text-2xl font-bold mb-4">Members</h2>
         <div className="overflow-x-auto">
@@ -75,7 +74,10 @@ function AgGroupDetails({ darkMode }) {
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase">E-Contact</th>
               </tr>
             </thead>
-            <tbody className={`${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-white text-gray-900'}`}>
+            {loading ? (
+              <AgGroupDetailsLoadingSkeleton darkMode={darkMode}/>
+            ) : (
+              <tbody className={`${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-white text-gray-900'}`}>
               {members.map((member) => (
                 <tr key={member.id}>
                   <td className="px-6 py-4">{member.first_name} {member.second_name}</td>
@@ -89,13 +91,31 @@ function AgGroupDetails({ darkMode }) {
                 </tr>
               ))}
             </tbody>
+            )}
           </table>
         </div>
         </div>
-      )}
 
     </div>
   )
 }
 
 export default AgGroupDetails
+
+function AgGroupDetailsLoadingSkeleton({ darkMode }) {
+  return (
+    <SkeletonTheme baseColor={darkMode ? "#2D2F33" : "#E0E0E0"} highlightColor={darkMode ? "#3A3C40" : "#F5F5F5"}>
+      <tbody className={`${darkMode ? 'bg-gray-900 divide-gray-700' : 'bg-white divide-gray-200'}`}>
+        {[...Array(4)].map((_, rowIndex) => (
+          <tr key={rowIndex} className='animate-pulse'>
+            {[...Array(8)].map((_, colIndex) => (
+              <td key={colIndex} className='px-6 py-4 whitespace-nowrap'>
+                 <Skeleton height={20} className='rounded-md'/>
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </SkeletonTheme>
+  )
+}

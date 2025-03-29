@@ -5,6 +5,8 @@ import MemberForm from './MemberForm';
 import toast from 'react-hot-toast';
 import { Tooltip } from 'react-tooltip'
 import LoadingSpinner from './LoadingSpinner';
+import Skeleton, {SkeletonTheme} from 'react-loading-skeleton';
+import "react-loading-skeleton/dist/skeleton.css"
 
 
 const MembersList = ({ darkMode }) => {
@@ -23,16 +25,19 @@ const MembersList = ({ darkMode }) => {
   const [sortOrder, setSortOrder] = useState("");
   const [ageFilter, setAgeFilter] = useState("");
   const [ageGroup, setAgeGroup] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const api = import.meta.env.VITE_API_URL
 
   useEffect(() => {
-    fetchMembers();
+    // fetchMembers();
+    fetchPaginatedMembers()
   }, []);
 
   const fetchMembers = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`${api}member`);
+      const response = await fetch(`${api}memberlist`);
       const data = await response.json();
       setMembers(data);
     } catch (error) {
@@ -41,6 +46,21 @@ const MembersList = ({ darkMode }) => {
         setIsLoading(false)
     }
   };
+
+  const fetchPaginatedMembers = async (page = 1) => {
+    setIsLoading(true)
+    try {
+      const response = await fetch(`${api}member?page=${page}&page_size=15`);
+      const data = await response.json()
+      setMembers(data.results)
+      setTotalPages(Math.ceil(data.count / 15))
+      setCurrentPage(page)
+    } catch (error) {
+      console.error('Error fetching member: ', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleSearch = (e, field) => {
     setSearchTerms({ ...searchTerms, [field]: e.target.value.toLowerCase() })
@@ -114,12 +134,18 @@ const MembersList = ({ darkMode }) => {
     }
   };
 
-  if (isLoading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
+  // if (isLoading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
 
   return (
     <div>
       <div className='flex flex-col md:flex-row md:items-center justify-between p-4 gap-3'>
       <div className='flex flex-col md:flex-row md:items-center gap-3 w-full md:w-auto'>
+      <button 
+        className={`px-4 py-2 rounded lg ${darkMode ? 'bg-indigo-800 text-white': 'bg-white text-gray-900'}`}
+        onClick={() => fetchMembers()}>View all</button>
+      <button 
+        className={`px-4 py-2 rounded lg ${darkMode ? 'bg-indigo-800 text-white': 'bg-white text-gray-900'}`}
+        onClick={() => fetchPaginatedMembers()}>View in pages</button>
       <input type="number" placeholder="Filter by Age" onChange={(e) => setAgeFilter(e.target.value)} className={`border px-4 py-2 rounded-lg w-full md:w-1/3 transition ${
                     darkMode ? 'bg-gray-800 text-white border-gray-600' : 'bg-white text-gray-900 border-gray-300'
                 }`} />
@@ -175,108 +201,142 @@ const MembersList = ({ darkMode }) => {
                 }`} />
       </div>
         <table className={`min-w-full divide-y ${darkMode ? 'divide-gray-700 bg-gray-800' : 'divide-gray-200 bg-white'}`}>
-          <thead className={`${darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-50 text-gray-500'}`}>
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">AG-Group</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Location</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Gender</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Phone</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">DOB</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">School</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">E-Contact</th>
-              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className={`${darkMode ? 'bg-gray-900 divide-gray-700' : 'bg-white divide-gray-200'}`}>
-            {sortedMembers.map((member) => (
-              <tr key={member.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                    {member.first_name} {member.second_name} {member.sur_name ? member.sur_name : ''}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{member.ag_name || 'N/A'}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{member.location}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {member.gender}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{member.phone}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{format(new Date(member.date_of_birth), 'MMM d, yyyy')}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {member.school ? member.school : 'N/A'}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    {member.contact_name
-                  ? `${member.contact_name} - ${member.contact_phone} (${member.relationship})`
-                  : 'N/A'}
-                  </div>
-                </td>
+        <thead className={`${darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-50 text-gray-500'}`}>
+          <tr>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Name</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">AG-Group</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Location</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Gender</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Phone</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">DOB</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">School</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">E-Contact</th>
+            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        {isLoading ? (
+          <MemberLoadingSkeleton darkMode={darkMode} />
+        ) : (
+        <tbody className={`${darkMode ? 'bg-gray-900 divide-gray-700' : 'bg-white divide-gray-200'}`}>
+          {sortedMembers.map((member) => (
+            <tr key={member.id}>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className={`text-sm font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+                  {member.first_name} {member.second_name} {member.sur_name ? member.sur_name : ''}
+                </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{member.ag_name || 'N/A'}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{member.location}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {member.gender}
+                </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{member.phone}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{format(new Date(member.date_of_birth), 'MMM d, yyyy')}</div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {member.school ? member.school : 'N/A'}
+                </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  {member.contact_name
+                ? `${member.contact_name} - ${member.contact_phone} (${member.relationship})`
+                : 'N/A'}
+                </div>
+              </td>
 
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    onClick={() => handleEdit(member)}
-                    className={`mr-4 ${darkMode ? 'text-indigo-400 hover:text-indigo-200' : 'text-indigo-600 hover:text-indigo-900'}`}
-                    data-tooltip-id='editor'
-                  >
-                    <Tooltip id='editor' place='left' content='Edit' />
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                  <button
-                    className={`${darkMode ? 'text-red-400 hover:text-red-200' : 'text-red-600 hover:text-red-900'}`}
-                    data-tooltip-id='delete-btn'
-                    onClick={() => 
-                      toast(
-                        (t) => (
-                          <div className='flex items-center w-full px-4 py-2 text-gray-900 hover:text-red-500 gap-2'>
-                            <span>This action cannot be undone</span>
-                            <p className='text-sm'>{`Delete ${member.first_name}`} </p>
-                            <div className='flex gap-2'>
-                              <button 
-                                onClick={() => {
-                                  handleDelete(member.id)
-                                  toast.dismiss(t.id)
-                                }}
-                                className='bg-red-600 text-white px-4 py-2 rounded-md'
-                              >
-                                Yes, Delete
-                              </button>
-                              <button
-                                onClick={() => toast.dismiss(t.id)}
-                                className='bg-indigo-500 text-white px-4 py-2 rounded-md'
-                              >
-                                Cancel
-                              </button>
-                            </div>
+              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <button
+                  onClick={() => handleEdit(member)}
+                  className={`mr-4 ${darkMode ? 'text-indigo-400 hover:text-indigo-200' : 'text-indigo-600 hover:text-indigo-900'}`}
+                  data-tooltip-id='editor'
+                >
+                  <Tooltip id='editor' place='left' content='Edit' />
+                  <Pencil className="w-4 h-4" />
+                </button>
+                <button
+                  className={`${darkMode ? 'text-red-400 hover:text-red-200' : 'text-red-600 hover:text-red-900'}`}
+                  data-tooltip-id='delete-btn'
+                  onClick={() => 
+                    toast(
+                      (t) => (
+                        <div className='flex items-center w-full px-4 py-2 text-gray-900 hover:text-red-500 gap-2'>
+                          <span>This action cannot be undone</span>
+                          <p className='text-sm'>{`Delete ${member.first_name}`} </p>
+                          <div className='flex gap-2'>
+                            <button 
+                              onClick={() => {
+                                handleDelete(member.id)
+                                toast.dismiss(t.id)
+                              }}
+                              className='bg-red-600 text-white px-4 py-2 rounded-md'
+                            >
+                              Yes, Delete
+                            </button>
+                            <button
+                              onClick={() => toast.dismiss(t.id)}
+                              className='bg-indigo-500 text-white px-4 py-2 rounded-md'
+                            >
+                              Cancel
+                            </button>
                           </div>
-                        ),
-                        {
-                          duration: 10000
-                        }
-                      )
-                    }
-                  >
-                    <Tooltip id='delete-btn' place='top' content='Delete' />
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                        </div>
+                      ),
+                      {
+                        duration: 10000
+                      }
+                    )
+                  }
+                >
+                  <Tooltip id='delete-btn' place='top' content='Delete' />
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+         )}
+      </table>
+     
+
+
+        <div className='flex justify-between m-4'>
+          <button
+            onClick={() => fetchPaginatedMembers(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 rounded-lg transition duration-200 ease-in-out ${currentPage === 1 ? 'bg-gray-400 cursor-not-allowed text-gray-200' : darkMode ?'bg-indigo-800 text-white hover:bg-indigo-900' 
+          : 'bg-indigo-600 text-white hover:bg-indigo-700' }`}
+          >
+            Previous
+          </button>
+
+          <span className={`px-4 py-2 font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            Page {currentPage} of {totalPages}
+          </span>
+
+          <button
+            onClick={() => fetchPaginatedMembers(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 rounded-lg transition duration-200 ease-in-out 
+              ${currentPage === totalPages 
+                ? 'bg-gray-400 cursor-not-allowed text-gray-200' 
+                : darkMode 
+                  ? 'bg-indigo-800 text-white hover:bg-indigo-900' 
+                  : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+          >
+            Next
+          </button>
+        </div>
       </div>
 
       {showForm && (
@@ -297,3 +357,21 @@ const MembersList = ({ darkMode }) => {
 };
 
 export default MembersList;
+
+function MemberLoadingSkeleton({ darkMode }) {
+  return (
+    <SkeletonTheme baseColor={darkMode ? "#2D2F33" : "#E0E0E0"} highlightColor={darkMode ? "#3A3C40" : "#F5F5F5"}>
+      <tbody className={`${darkMode ? "bg-gray-900 divide-gray-700" : "bg-white divide-gray-200"}`}>
+        {[...Array(10)].map((_, rowIndex) => (
+          <tr key={rowIndex} className="animate-pulse">
+            {[...Array(9)].map((_, colIndex) => (
+              <td key={colIndex} className="px-6 py-4 whitespace-nowrap">
+                <Skeleton height={30} className="rounded-md" />
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </SkeletonTheme>
+  )
+}

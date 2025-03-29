@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import EventDashboard from './EventDashboard';
 import EventAttendees from './EventAttendees';
+import EventAttendance from './EventAttendance';
 
 function EventDetails({ darkMode }) {
     const { eventId } = useParams();
@@ -27,7 +28,7 @@ function EventDetails({ darkMode }) {
                 {activeTab === 'dashboard' && <EventDashboard eventId={eventId} darkMode={darkMode}/>}
                 {activeTab === 'attendees' && <EventAttendees eventId={eventId} darkMode={darkMode}/>}
                 {activeTab === 'organisers' && <EventOrganisers eventId={eventId} />}
-                {activeTab === 'attendance' && <EventAttendance eventId={eventId} />}
+                {activeTab === 'attendance' && <EventAttendance eventId={eventId} darkMode={darkMode}/>}
             </div>
         </div>
     );
@@ -35,7 +36,7 @@ function EventDetails({ darkMode }) {
 
 // const EventDashboard = ({ eventId }) => <div>Dashboard for event</div>;
 // const EventAttendees = ({ eventId }) => <div>Attendees list for event {eventId}</div>;
+// const EventAttendance = ({ eventId }) => <div>Attendance records for event</div>;
 const EventOrganisers = ({ eventId }) => <div>Organisers list for event</div>;
-const EventAttendance = ({ eventId }) => <div>Attendance records for event</div>;
 
 export default EventDetails;

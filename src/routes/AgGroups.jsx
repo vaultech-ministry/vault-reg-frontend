@@ -4,6 +4,8 @@ import { Pencil, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import AgGroupModal from '../components/AgGroupModal'
 import LoadingSpinner from '../components/LoadingSpinner'
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton'
+import 'react-loading-skeleton/dist/skeleton.css'
 
 function AgGroups({ darkMode }) {
   const [groups, setGroups] = useState([])
@@ -26,7 +28,7 @@ function AgGroups({ darkMode }) {
 
         const groupsWithMembers = await Promise.all(
           data.map(async (group) => {
-            const membersResponse = await fetch(`${api}member?group_id=${group.id}`)
+            const membersResponse = await fetch(`${api}memberlist?group_id=${group.id}`)
             const membersData = membersResponse.ok ? await membersResponse.json() : []
             return { ...group, membersCount: membersData.length }
           })
@@ -109,7 +111,7 @@ function AgGroups({ darkMode }) {
       fetchDeleteAgGroup(groupId)
  }
 
- if (loading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
+//  if (loading) return <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}><LoadingSpinner /></p>;
 
   return (
     <div className={`p-8 ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'}`}>
@@ -121,7 +123,10 @@ function AgGroups({ darkMode }) {
           onClick={() => setShowModal(true)}
           className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors">Add Group</button> */}
       </div>
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
+      {loading ? (
+        <AgGroupLoadingSkeleton darkMode={darkMode}/>
+      ) : (
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
         {groups.map((group, index) => (
             <div 
               key={index}
@@ -192,6 +197,7 @@ function AgGroups({ darkMode }) {
             </div>
         ))}
       </div>
+      )}
         {showModal && (
           <AgGroupModal
             onClose={() => setShowModal(false)}
@@ -205,3 +211,17 @@ function AgGroups({ darkMode }) {
 }
 
 export default AgGroups
+
+function AgGroupLoadingSkeleton({ darkMode }) {
+  return (
+    <SkeletonTheme baseColor={darkMode ? "#2D2F33" : "#E0E0E0"} highlightColor={darkMode ? "#3A3C40" : "#F5F5F5"}>
+      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"'>
+        {[...Array(8)].map((_, index) => (
+          <div key={index} className='rounded-lg mt-4'>
+            <Skeleton height={170} className='absolute inset-0'/>
+          </div>
+        ))}
+      </div>
+    </SkeletonTheme>
+  )
+}

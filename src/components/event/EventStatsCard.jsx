@@ -17,6 +17,7 @@ import {
     Layers,
     XCircle,
     Clock3,} from 'lucide-react';
+import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 function EventStatsCard({ eventId, darkMode }) {
     const [eventStats, setEventStats] = useState({});
@@ -95,33 +96,52 @@ function EventStatsCard({ eventId, darkMode }) {
             <h3 className={`text-xl font-semibold ${darkMode ? 'text-gray-100' : 'text-gray-900'} mb-3`}>
                 Attendees by AG Group
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-4">
-            {eventStats.ag_groups &&
-                Object.entries(eventStats.ag_groups)
-                    .filter(([group]) => group.trim() !== "")
-                    .sort(([a], [b]) => (a === "none" ? 1 : b === "none" ? -1 : 0))
-                    .map(([group, count]) => {
-                        const Icon = agIcons[group] || Users;
-                        return (
-                            <div
-                                key={group}
-                                className={`p-4 rounded-lg shadow-sm border text-center ${
-                                    darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-                                }`}
-                            >
-                                <div className="flex justify-center mb-2">
-                                    <Icon className={`w-6 h-6 ${darkMode ? 'text-gray-300' : 'text-indigo-600'}`} />
+            {loading ? (
+                <EventStatsCardLoadingSkeleton darkMode={darkMode} />
+            ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-4">
+                {eventStats.ag_groups &&
+                    Object.entries(eventStats.ag_groups)
+                        .filter(([group]) => group.trim() !== "")
+                        .sort(([a], [b]) => (a === "none" ? 1 : b === "none" ? -1 : 0))
+                        .map(([group, count]) => {
+                            const Icon = agIcons[group] || Users;
+                            return (
+                                <div
+                                    key={group}
+                                    className={`p-4 rounded-lg shadow-sm border text-center ${
+                                        darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                                    }`}
+                                >
+                                    <div className="flex justify-center mb-2">
+                                        <Icon className={`w-6 h-6 ${darkMode ? 'text-gray-300' : 'text-indigo-600'}`} />
+                                    </div>
+                                    <h4 className={`text-lg font-bold ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
+                                        {loading ? '...' : count}
+                                    </h4>
+                                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{group}</p>
                                 </div>
-                                <h4 className={`text-lg font-bold ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>
-                                    {loading ? '...' : count}
-                                </h4>
-                                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{group}</p>
-                            </div>
-                        );
-                    })}
-            </div>
+                            );
+                        })}
+                </div>
+            )}
+
         </div>
     );
 }
 
 export default EventStatsCard;
+
+function EventStatsCardLoadingSkeleton({ darkMode }) {
+    return (
+        <SkeletonTheme baseColor={darkMode ? "#1F2937" : "#E0E0E0"} highlightColor={darkMode ? "#4B5563" : "#F5F5F5"}>
+            <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-4'>
+                {[...Array(9)].map((_, cardIndex) => (
+                    <div key={cardIndex} className='mt-4'>
+                        <Skeleton height={130} className='rounded-lg absolute inset-0'/>
+                    </div>
+                ))}
+            </div>
+        </SkeletonTheme>
+    )
+}
