@@ -8,6 +8,7 @@ function EventAttendance({ darkMode }) {
   const [attendees, setAttendees] = useState([])
   const [filteredAttendees, setFilteredAttendees] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
+  const [selectedDate, setSelectedDate] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const api = import.meta.env.VITE_API_URL
 
@@ -34,47 +35,53 @@ function EventAttendance({ darkMode }) {
     }
   }
 
-  const fetchAttendanceData = async () => {
+  const fetchAttendanceData = async (date) => {
+    if (!date) return
+
     setIsLoading(true)
     try{
-      const response = await fetch(`${api}event-attendance?date=${today}`)
+      const response = await fetch(`${api}event-attendance?date=${date}`)
       if (response.ok) {
         const data = await response.json()
 
-        const uniqueAttendance = new Map()
-        data.forEach((record) => {
-          uniqueAttendance.set(record.member_event.id, record)
-        })
-        setAttendance(Array.from(uniqueAttendance.values()))
-        setFilteredAttendees(Array.from(uniqueAttendance.values()))
-
-        const filteredData = Object.values(uniqueAttendance)
-        setAttendance(filteredData)
-        setFilteredAttendees(filteredData)
-        console.log(filteredData)
+        if (Array.isArray(data)) {
+          setAttendance(data)
+          setFilteredAttendees(data)
+        } else {
+            setAttendance([])
+            setFilteredAttendees([])
+        }
+      } else {
+        toast.error("Failed to fetch attendance data")
       }
     } catch (error) {
-      console.error()
+      console.error('Error', error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleAttendance = async (attendeeId, date, status) => {
+  const handleAttendance = async (attendanceId) => {
+    if (!selectedDate) {
+      toast.error("Please select a date first!")
+      return
+    }
     setIsLoading(true)
     try {
-      const today = new Date().toISOString().split("T")[0];
-      const response = await fetch(`${api}event-attendance?attendee=${attendeeId}$date=${today}`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ attendee: attendeeId, date, status})
+      const response = await fetch(`${api}event-attendance/${attendanceId}/`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ present: true, date: selectedDate })
       })
       if (response.ok) {
+        const data = await response.json()
         toast.success('Marked successfully')
-        setAttendance((prev) => ({
-          ...prev,
-          [attendeeId]: {...prev[attendeeId], [date]: status},
-        }))
+        setAttendance((prev) => 
+          prev.map((attendee) => 
+            attendee.id = attendanceId
+              ? { ...attendee, present: true, check_in_time: data.check_in_time }
+              : attendee)
+        )
       } else {
         toast.error('Failed to mark attendance!')
       }
@@ -96,6 +103,20 @@ function EventAttendance({ darkMode }) {
   return (
     <div className={`p-6 ${darkMode ? 'bg-gray-900 text-gray-100' : 'bg-white text-gray-900'}`}>
         <h2 className='text-2xl font-semibold mb-4'>Exchange 2025 Attendance</h2>
+        <div className='mb-4 flex items-center space-x-4'>
+          <label className='font-medium'>Select Date:</label>
+          <input
+            type='date'
+            value={selectedDate}
+            onChange={(e) => {
+              setSelectedDate(e.target.value);
+              fetchAttendanceData(e.target.value);
+            }}
+            className={`p-2 border rounded ${
+              darkMode ? 'bg-gray-700 text-gray-100 border-gray-600' : 'bg-white text-gray-900 border-gray-300'
+            } focus:ring-2`}
+          />
+        </div>
       <div className={`rounded-xl shadow-sm border overflow-hidden p-4 ${darkMode ? 'bg-gray-800 divide-gray-700 border-gray-700' : 'bg-white divide-gray-200 border-gray-100'}`}>
         <div className='mb-4 flex items-center'>
           <Search className='w-5 h-5 text-gray-500'/>
@@ -133,7 +154,17 @@ function EventAttendance({ darkMode }) {
                       <td className='px-6 py-4 whitespace-nowrap'>{attendee.ag_group}</td>
                       <td className='px-6 py-4 whitespace-nowrap'>{attendee.check_in_time}</td>
                       <td className='px-6 py-4 whitespace-nowrap'>
-    
+                        <button
+                          onClick={() => handleAttendance(attendee.id)}
+                          disabled={!selectedDate}
+                          className={`px-4 py-2 rounded ${
+                            !selectedDate
+                             ? "bg-gray-400 cursor-not-allowed"
+                             : "bg-green-500 hover: bg-blue-600"
+                          } text-white`}
+                        >
+                          Mark Attendance
+                        </button>
                       </td>
                   </tr>
                     ))}
