@@ -16,32 +16,8 @@ function EventAttendance({ darkMode }) {
 
   useEffect(() => {
     setSelectedDate(today);
-    initializeAttendance(today);
+    fetchAttendanceData(today);
   }, [api]);
-
-  const initializeAttendance = async (date) => {
-    if (!date) return;
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${api}initialize-attendance/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date }),
-      });
-      if (response.ok) {
-        await fetchAttendanceData(date);
-      } else {
-        const errorData = await response.json();
-        toast.error(errorData.error || 'Failed to initialize attendance');
-      }
-    } catch (error) {
-      console.error('Error initializing attendance:', error);
-      toast.error('Error initializing attendance');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const fetchAttendanceData = async (date) => {
     if (!date) return;
@@ -53,6 +29,11 @@ function EventAttendance({ darkMode }) {
         const data = await response.json();
         setAttendance(data);
         setFilteredAttendees(data);
+
+        // Initialize only if no records exist for the date
+        if (data.length === 0) {
+          await initializeAttendance(date);
+        }
       } else {
         toast.error('Failed to fetch attendance data');
         setAttendance([]);
@@ -63,6 +44,29 @@ function EventAttendance({ darkMode }) {
       toast.error('Error fetching attendance data');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const initializeAttendance = async (date) => {
+    if (!date) return;
+
+    try {
+      const response = await fetch(`${api}initialize-attendance/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date }),
+      });
+      if (response.ok) {
+        const result = await response.json();
+        toast.success(result.message);
+        await fetchAttendanceData(date); // Refresh data after initialization
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || 'Failed to initialize attendance');
+      }
+    } catch (error) {
+      console.error('Error initializing attendance:', error);
+      toast.error('Error initializing attendance');
     }
   };
 
@@ -129,7 +133,7 @@ function EventAttendance({ darkMode }) {
           onChange={(e) => {
             const newDate = e.target.value;
             setSelectedDate(newDate);
-            initializeAttendance(newDate);
+            fetchAttendanceData(newDate);
           }}
           className={`p-2 border rounded ${
             darkMode ? 'bg-gray-700 text-gray-100 border-gray-600' : 'bg-white text-gray-900 border-gray-300'
@@ -182,7 +186,7 @@ function EventAttendance({ darkMode }) {
                       <td className="px-6 py-4 whitespace-nowrap">{attendee.member_event.full_name}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{attendee.member_event.gender}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{attendee.member_event.vault_member}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{attendee.member_event.ag_group || 'N/A'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{attendee.member_event.ag_group}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {attendee.check_in_time
                           ? new Date(attendee.check_in_time).toLocaleTimeString()
@@ -214,6 +218,8 @@ function EventAttendance({ darkMode }) {
   );
 }
 
+export default EventAttendance;
+
 function EventAttendanceLoadingSkeleton({ darkMode }) {
   return (
     <SkeletonTheme baseColor={darkMode ? '#2D2F33' : '#E0E0E0'} highlightColor={darkMode ? '#3A3C40' : '#F5F5F5'}>
@@ -231,5 +237,3 @@ function EventAttendanceLoadingSkeleton({ darkMode }) {
     </SkeletonTheme>
   );
 }
-
-export default EventAttendance;
