@@ -240,7 +240,7 @@ function EventAttendanceLoadingSkeleton({ darkMode }) {
       <tbody>
         {[...Array(12)].map((_, rowIndex) => (
           <tr key={rowIndex} className="animate-pulse">
-            {[...Array(6)].map((_, colIndex) => (
+            {[...Array(5)].map((_, colIndex) => (
               <td key={colIndex} className="px-6 py-4 whitespace-nowrap">
                 <Skeleton height={30} className="rounded-md" />
               </td>
