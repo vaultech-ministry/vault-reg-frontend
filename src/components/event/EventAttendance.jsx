@@ -24,24 +24,32 @@ function EventAttendance({ darkMode }) {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${api}event-attendance?date=${date}`);
-      if (response.ok) {
-        const data = await response.json();
-        setAttendance(data);
-        setFilteredAttendees(data);
+      // Fetch all EventAttendance records for the date
+      const attendanceResponse = await fetch(`${api}event-attendance?date=${date}`);
+      if (!attendanceResponse.ok) {
+        throw new Error('Failed to fetch attendance data');
+      }
+      const attendanceData = await attendanceResponse.json();
 
-        // Initialize only if no records exist for the date
-        if (data.length === 0) {
-          await initializeAttendance(date);
-        }
+      // Fetch total number of MemberEvent instances
+      const membersResponse = await fetch(`${api}member-event`);
+      if (!membersResponse.ok) {
+        throw new Error('Failed to fetch members data');
+      }
+      const membersData = await membersResponse.json();
+
+      // Check if all members have an EventAttendance record
+      if (attendanceData.length < membersData.length) {
+        await initializeAttendance(date);
       } else {
-        toast.error('Failed to fetch attendance data');
-        setAttendance([]);
-        setFilteredAttendees([]);
+        setAttendance(attendanceData);
+        setFilteredAttendees(attendanceData);
       }
     } catch (error) {
       console.error('Error fetching attendance:', error);
       toast.error('Error fetching attendance data');
+      setAttendance([]);
+      setFilteredAttendees([]);
     } finally {
       setIsLoading(false);
     }
@@ -59,7 +67,15 @@ function EventAttendance({ darkMode }) {
       if (response.ok) {
         const result = await response.json();
         toast.success(result.message);
-        await fetchAttendanceData(date); // Refresh data after initialization
+        // Refresh attendance data after initialization
+        const attendanceResponse = await fetch(`${api}event-attendance?date=${date}`);
+        if (attendanceResponse.ok) {
+          const attendanceData = await attendanceResponse.json();
+          setAttendance(attendanceData);
+          setFilteredAttendees(attendanceData);
+        } else {
+          throw new Error('Failed to fetch updated attendance data');
+        }
       } else {
         const errorData = await response.json();
         toast.error(errorData.error || 'Failed to initialize attendance');
@@ -166,9 +182,9 @@ function EventAttendance({ darkMode }) {
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Gender</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Member</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Ag-Group</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Check-in Time</th>
+                {/* <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Check-in Time</th> */}
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
-              </tr>
+                </tr>
             </thead>
             {isLoading ? (
               <EventAttendanceLoadingSkeleton darkMode={darkMode} />
@@ -186,12 +202,12 @@ function EventAttendance({ darkMode }) {
                       <td className="px-6 py-4 whitespace-nowrap">{attendee.member_event.full_name}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{attendee.member_event.gender}</td>
                       <td className="px-6 py-4 whitespace-nowrap">{attendee.member_event.vault_member}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">{attendee.member_event.ag_group}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-4 whitespace-nowrap">{attendee.member_event.ag_group || 'N/A'}</td>
+                      {/* <td className="px-6 py-4 whitespace-nowrap">
                         {attendee.check_in_time
                           ? new Date(attendee.check_in_time).toLocaleTimeString()
                           : '-'}
-                      </td>
+                      </td> */}
                       <td className="px-6 py-4 whitespace-nowrap">
                         <button
                           onClick={() => handleAttendance(attendee.id)}
@@ -218,8 +234,6 @@ function EventAttendance({ darkMode }) {
   );
 }
 
-export default EventAttendance;
-
 function EventAttendanceLoadingSkeleton({ darkMode }) {
   return (
     <SkeletonTheme baseColor={darkMode ? '#2D2F33' : '#E0E0E0'} highlightColor={darkMode ? '#3A3C40' : '#F5F5F5'}>
@@ -237,3 +251,5 @@ function EventAttendanceLoadingSkeleton({ darkMode }) {
     </SkeletonTheme>
   );
 }
+
+export default EventAttendance;
