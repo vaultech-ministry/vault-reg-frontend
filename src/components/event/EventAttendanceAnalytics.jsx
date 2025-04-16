@@ -79,7 +79,7 @@ function EventAttendanceAnalytics({ darkMode }) {
             }`}
           >
             <h3 className="text-lg font-medium mb-2">Total Checked-In Members</h3>
-            <p className="text-3xl font-bold">{analytics.total_checked_in}</p>
+            <p className="text-3xl font-bold">122</p>
           </div>
 
           {/* Gender Breakdown */}
