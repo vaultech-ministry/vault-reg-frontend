@@ -21,11 +21,11 @@ const PrivateRoute = ({ children }) => {
 
 const Layout = () => {
   const [darkMode, setDarkMode] = useState(true);
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   return (
-    <div className={`flex h-screen ${darkMode ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
+    <div className={`relative flex h-screen overflow-hidden ${darkMode ? "bg-gray-900 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
+      {/* Theme toggle */}
       <button
         className="fixed top-4 right-4 z-50 p-2 rounded-md bg-indigo-600 text-white"
         onClick={() => setDarkMode(!darkMode)}
@@ -33,6 +33,7 @@ const Layout = () => {
         {darkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
       </button>
 
+      {/* Mobile hamburger */}
       <button
         className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-indigo-600 text-white"
         onClick={() => setIsMobileSidebarOpen(true)}
@@ -40,22 +41,22 @@ const Layout = () => {
         <Menu className="w-6 h-6" />
       </button>
 
+      {/* Overlay for mobile sidebar */}
       {isMobileSidebarOpen && (
-        <div className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setIsMobileSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
       )}
 
+      {/* Sidebar */}
       <Sidebar
-        isExpanded={isSidebarExpanded}
-        onToggle={() => setIsSidebarExpanded(!isSidebarExpanded)}
-        isMobileOpen={isMobileSidebarOpen}
-        onMobileClose={() => setIsMobileSidebarOpen(false)}
-     
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
       />
-      <div
-        className={`transition-all duration-300 flex-1 overflow-auto pt-16 lg:pt-0 ${
-          isSidebarExpanded ? "ml-64" : "ml-20"
-        } lg:ml-20`}
-      >
+
+      {/* Main content */}
+      <main className="flex-1 z-0 overflow-y-auto pt-16 lg:pt-0 lg:ml-20">
         <Routes>
           <Route path="/" element={<PrivateRoute><Dashboard darkMode={darkMode} /></PrivateRoute>} />
           <Route path="/attendance" element={<PrivateRoute><Attendance darkMode={darkMode} /></PrivateRoute>} />
@@ -69,7 +70,7 @@ const Layout = () => {
           <Route path="/vaultevents" element={<PrivateRoute><Event darkMode={darkMode} /></PrivateRoute>} />
           <Route path="/vaultevents/:eventId" element={<PrivateRoute><EventDetails darkMode={darkMode} /></PrivateRoute>} />
         </Routes>
-      </div>
+      </main>
     </div>
   );
 };
