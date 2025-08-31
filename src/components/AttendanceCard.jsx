@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react'
-import { Pie, Doughnut, Bar } from "react-chartjs-2";
+import React, { useState, useEffect, lazy } from 'react'
 
 import {
   Chart as ChartJS,
@@ -12,6 +11,9 @@ import {
   BarElement,
   BarController,
 } from "chart.js"
+
+const Pie = lazy(() => import("react-chartjs-2").then((module) => ({default: module.Pie})))
+const Doughnut = lazy(() => import("react-chartjs-2").then((module) => ({ default: module.Doughnut})))
 
 ChartJS.register(CategoryScale, LinearScale, Title, Tooltip, Legend, ArcElement, BarElement, BarController);
 

@@ -37,7 +37,7 @@ const Sidebar = ({ isOpen, onClose, darkMode }) => {
   return (
     <aside
       className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out
-        ${isOpen ? "translate-x-0 w-72" : "-translate-x-full"}  // Increased mobile sidebar width
+        ${isOpen ? "translate-x-0 w-72" : "-translate-x-full"} 
         bg-indigo-900 text-white lg:translate-x-0 lg:w-20`} // Desktop: smaller width for sidebar
     >
       <div className="flex flex-col h-full">

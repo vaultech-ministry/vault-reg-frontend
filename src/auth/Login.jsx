@@ -98,11 +98,11 @@ function Login({ setIsAuth }) {
           </div>
 
           {/* Forgot Password */}
-          <div className="flex items-center justify-between text-sm text-gray-400">
+          {/* <div className="flex items-center justify-between text-sm text-gray-400">
             <Link to="/forgotpassword" className="hover:text-yellow-400 transition">
               Forgot Password?
             </Link>
-          </div>
+          </div> */}
 
           {/* Submit Button */}
           <button

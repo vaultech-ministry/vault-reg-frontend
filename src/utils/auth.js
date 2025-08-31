@@ -8,7 +8,7 @@ export const signup = async (userData) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        ...(token && { Authorization: `Token ${token}` }), // Include token only if it exists
+        ...(token && { Authorization: `Token ${token}` }),
       },
       body: JSON.stringify(userData),
     });
@@ -49,7 +49,7 @@ export const login = async (credentials) => {
 
 export const isAuthenticated = () => {
   const token = localStorage.getItem("authToken");
-  return !!token; // Returns true if token exists, otherwise false
+  return !!token;
 };
 
 export const logout = () => {

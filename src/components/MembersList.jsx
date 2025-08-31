@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { Pencil, Trash2, UserPlus } from 'lucide-react';
+import { ExternalLink, Pencil, Trash2, UserPlus } from 'lucide-react';
 import MemberForm from './MemberForm';
 import toast from 'react-hot-toast';
 import { Tooltip } from 'react-tooltip'
 import LoadingSpinner from './LoadingSpinner';
 import Skeleton, {SkeletonTheme} from 'react-loading-skeleton';
 import "react-loading-skeleton/dist/skeleton.css"
+import MemberDetails from './MemberDetail';
+import { useNavigate } from 'react-router-dom';
 
 
 const MembersList = ({ darkMode }) => {
@@ -14,6 +16,7 @@ const MembersList = ({ darkMode }) => {
   const [selectedMember, setSelectedMember] = useState(null);
   const [isLoading, setIsLoading] = useState(false)
   const [showForm, setShowForm] = useState(false);
+  const [showMemberDetailPage, setShowMemberDetailPage] = useState(false)
   const [searchTerms, setSearchTerms] = useState({
     name: "",
     location: "",
@@ -28,6 +31,8 @@ const MembersList = ({ darkMode }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const api = import.meta.env.VITE_API_URL
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     // fetchMembers();
@@ -115,6 +120,10 @@ const MembersList = ({ darkMode }) => {
     setSelectedMember(member)
     setShowForm(true)
   };
+
+  const handleViewMemberDetails = (memberId) => {
+    navigate(`/member/${memberId}`)
+  }
 
   const handleDelete = async (memberId) => {
     setIsLoading(true)
@@ -255,16 +264,24 @@ const MembersList = ({ darkMode }) => {
                 </div>
               </td>
 
-              <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <td className="flex px-6 py-4 whitespace-nowrap text-right text-sm font-medium gap-3">
                 <button
                   onClick={() => handleEdit(member)}
-                  className={`mr-4 ${darkMode ? 'text-indigo-400 hover:text-indigo-200' : 'text-indigo-600 hover:text-indigo-900'}`}
+                  className={`${darkMode ? 'text-indigo-400 hover:text-indigo-200' : 'text-indigo-600 hover:text-indigo-900'}`}
                   data-tooltip-id='editor'
                 >
-                  <Tooltip id='editor' place='left' content='Edit' />
+                  <Tooltip id='editor' place='top' content='Edit' />
                   <Pencil className="w-4 h-4" />
                 </button>
                 <button
+                  onClick={() => handleViewMemberDetails(member.id)}
+                  className=''
+                  data-tooltip-id='details'
+                >
+                  <Tooltip id='details' place='top' content='View Details'/>
+                  <ExternalLink className="w-4 h-4"/>
+                </button>
+                {/* <button
                   className={`${darkMode ? 'text-red-400 hover:text-red-200' : 'text-red-600 hover:text-red-900'}`}
                   data-tooltip-id='delete-btn'
                   onClick={() => 
@@ -300,7 +317,7 @@ const MembersList = ({ darkMode }) => {
                 >
                   <Tooltip id='delete-btn' place='top' content='Delete' />
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </button> */}
               </td>
             </tr>
           ))}
@@ -352,6 +369,10 @@ const MembersList = ({ darkMode }) => {
           onClose={() => setShowForm(false)}
         />
       )}
+
+      {/* {showMemberDetailPage && (
+        <MemberDetails/>
+      )} */}
     </div>
   );
 };
