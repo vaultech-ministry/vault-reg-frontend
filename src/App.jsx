@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import Login from './auth/Login';
 import { isAuthenticated } from './utils/auth';
 import { Toaster } from 'react-hot-toast';
+import { Analytics } from '@vercel/analytics/react';
 import { useState, useEffect } from 'react';
 
 function App() { 
@@ -19,6 +20,7 @@ function App() {
         <Route path='/*' element={isAuth ? <Layout /> : <Navigate to="/login" replace />} />
       </Routes>
       <Toaster position='top-center'/>
+      <Analytics />
     </Router>
   );
 }
