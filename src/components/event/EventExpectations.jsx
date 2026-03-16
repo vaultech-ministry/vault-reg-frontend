@@ -15,10 +15,25 @@ export default function EventExpectations({ eventId, darkMode }) {
   const fetchEventExpectations = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${api}expectations?event_id=${eventId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setExpectations(data);
+      let response;
+      
+      // Check if this is Exchange Conference SN6
+      if (eventId === 'f47ac10b-58cc-4372-a567-0e02b2c3d479') {
+        // Fetch SN6 expectations from registrations
+        response = await fetch(`${api}exchange-sn6/`);
+        if (response.ok) {
+          const data = await response.json();
+          // Extract expectations from SN6 registrations
+          const sn6Expectations = data.filter(reg => reg.expectations).map(reg => reg.expectations);
+          setExpectations(sn6Expectations);
+        }
+      } else {
+        // Fetch from regular expectations endpoint
+        response = await fetch(`${api}expectations?event_id=${eventId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setExpectations(data);
+        }
       }
     } catch (error) {
       console.error("Error", error);

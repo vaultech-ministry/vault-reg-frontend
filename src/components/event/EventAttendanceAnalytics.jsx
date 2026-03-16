@@ -3,7 +3,7 @@ import { BarChart2 } from 'lucide-react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import toast from 'react-hot-toast';
 
-function EventAttendanceAnalytics({ darkMode }) {
+function EventAttendanceAnalytics({ darkMode, eventId }) {
   const [selectedDate, setSelectedDate] = useState('');
   const [analytics, setAnalytics] = useState({
     total_checked_in: 0,
@@ -26,17 +26,52 @@ function EventAttendanceAnalytics({ darkMode }) {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${api}attendance-analytics/?date=${date}`);
-      if (response.ok) {
-        const data = await response.json();
-        setAnalytics(data);
+      let response;
+      
+      // Check if this is Exchange Conference SN6
+      if (eventId === 'f47ac10b-58cc-4372-a567-0e02b2c3d479') {
+        // For SN6, fetch attendance analytics from SN6 attendance endpoint
+        response = await fetch(`${api}exchange-sn6-attendance/?date=${date}`);
+        if (response.ok) {
+          const data = await response.json();
+          // Process SN6 attendance data to match expected format
+          setAnalytics(data);
+        } else {
+          // If no SN6 attendance endpoint, use registration data as fallback
+          const regResponse = await fetch(`${api}exchange-sn6/`);
+          if (regResponse.ok) {
+            const regData = await regResponse.json();
+            // Create analytics from registration data
+            const analytics = {
+              total_checked_in: regData.length,
+              gender_breakdown: {
+                male: regData.filter(r => r.gender === 'male').length,
+                female: regData.filter(r => r.gender === 'female').length
+              },
+              age_group_breakdown: {
+                'Below 18': regData.filter(r => r.age_group === 'Below 18').length,
+                '18-25': regData.filter(r => r.age_group === '18-25').length,
+                '26-30': regData.filter(r => r.age_group === '26-30').length,
+                'Unknown': regData.filter(r => !r.age_group).length
+              }
+            };
+            setAnalytics(analytics);
+          }
+        }
       } else {
-        toast.error('Failed to fetch analytics data');
-        setAnalytics({
-          total_checked_in: 0,
-          gender_breakdown: { male: 0, female: 0 },
-          age_group_breakdown: { 'Below 18': 0, '18-25': 0, '26-30': 0, Unknown: 0 },
-        });
+        // Regular analytics endpoint
+        response = await fetch(`${api}attendance-analytics/?date=${date}`);
+        if (response.ok) {
+          const data = await response.json();
+          setAnalytics(data);
+        } else {
+          toast.error('Failed to fetch analytics data');
+          setAnalytics({
+            total_checked_in: 0,
+            gender_breakdown: { male: 0, female: 0 },
+            age_group_breakdown: { 'Below 18': 0, '18-25': 0, '26-30': 0, Unknown: 0 },
+          });
+        }
       }
     } catch (error) {
       console.error('Error fetching analytics:', error);
@@ -79,7 +114,7 @@ function EventAttendanceAnalytics({ darkMode }) {
             }`}
           >
             <h3 className="text-lg font-medium mb-2">Total Checked-In Members</h3>
-            <p className="text-3xl font-bold">{analytics.total_checked_in}</p>
+            <p className="text-3xl font-bold">{analytics?.total_checked_in || 0}</p>
           </div>
 
           {/* Gender Breakdown */}
@@ -100,7 +135,7 @@ function EventAttendanceAnalytics({ darkMode }) {
                 {['male', 'female'].map((gender) => (
                   <tr key={gender}>
                     <td className="px-6 py-4 whitespace-nowrap capitalize">{gender}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{analytics.gender_breakdown[gender] || 0}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{analytics?.gender_breakdown?.[gender] || 0}</td>
                   </tr>
                 ))}
               </tbody>
@@ -125,7 +160,7 @@ function EventAttendanceAnalytics({ darkMode }) {
                 {['Below 18', '18-25', '26-30', 'Unknown'].map((ageGroup) => (
                   <tr key={ageGroup}>
                     <td className="px-6 py-4 whitespace-nowrap">{ageGroup}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{analytics.age_group_breakdown[ageGroup] || 0}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{analytics?.age_group_breakdown?.[ageGroup] || 0}</td>
                   </tr>
                 ))}
               </tbody>

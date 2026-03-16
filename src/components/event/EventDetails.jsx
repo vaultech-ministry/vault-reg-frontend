@@ -4,7 +4,8 @@ import EventDashboard from './EventDashboard';
 import EventAttendees from './EventAttendees';
 import EventAttendance from './EventAttendance';
 import EventExpectations from './EventExpectations';
-import EventAttendanceAnalytics from './EventAttendanceAnalytics'
+import EventAttendanceAnalytics from './EventAttendanceAnalytics';
+import EventMerchandise from './EventMerchandise';
 
 
 function EventDetails({ darkMode }) {
@@ -14,7 +15,7 @@ function EventDetails({ darkMode }) {
     return (
         <div className="p-6 w-full">
             <div className="flex space-x-4 border-b pb-2">
-                {['dashboard', 'attendees', 'attendance', 'expectations', 'analytics',].map((tab) => (
+                {['dashboard', 'attendees', 'attendance', 'expectations', 'analytics', 'merchandise'].map((tab) => (
                     <button
                         key={tab}
                         className={`px-4 py-2 text-sm font-semibold ${
@@ -33,13 +34,10 @@ function EventDetails({ darkMode }) {
                 {activeTab === 'analytics' && <EventAttendanceAnalytics eventId={eventId} darkMode={darkMode} />}
                 {activeTab === 'expectations' && <EventExpectations eventId={eventId} darkMode={darkMode}/>}
                 {activeTab === 'attendance' && <EventAttendance eventId={eventId} darkMode={darkMode}/>}
+                {activeTab === 'merchandise' && <EventMerchandise eventId={eventId} darkMode={darkMode}/>}
             </div>
         </div>
     );
 }
-
-// const EventDashboard = ({ eventId }) => <div>Dashboard for event</div>;
-// const EventAttendees = ({ eventId }) => <div>Attendees list for event {eventId}</div>;
-// const EventAttendance = ({ eventId }) => <div>Attendance records for event</div>;
 
 export default EventDetails;

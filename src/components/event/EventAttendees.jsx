@@ -30,7 +30,16 @@ const EventAttendees = ({ darkMode, eventId }) => {
   const fetchMembers = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`${api}member-event?event_id=${eventId}`);
+      let response;
+      
+      // Check if this is Exchange Conference SN6
+      if (eventId === 'f47ac10b-58cc-4372-a567-0e02b2c3d479') {
+        // Fetch from Exchange Conference SN6 endpoint
+        response = await fetch(`${api}exchange-sn6/`);
+      } else {
+        // Fetch from regular member-event endpoint
+        response = await fetch(`${api}member-event?event_id=${eventId}`);
+      }
       
       const data = await response.json();
       setMembers(data);

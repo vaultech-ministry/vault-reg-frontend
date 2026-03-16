@@ -3,7 +3,7 @@ import { Search } from 'lucide-react';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import toast from 'react-hot-toast';
 
-function EventAttendance({ darkMode }) {
+function EventAttendance({ darkMode, eventId }) {
   const [attendance, setAttendance] = useState([]);
   const [filteredAttendees, setFilteredAttendees] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,19 +24,42 @@ function EventAttendance({ darkMode }) {
 
     setIsLoading(true);
     try {
-      // Fetch all EventAttendance records for the date
-      const attendanceResponse = await fetch(`${api}event-attendance?date=${date}`);
-      if (!attendanceResponse.ok) {
-        throw new Error('Failed to fetch attendance data');
-      }
-      const attendanceData = await attendanceResponse.json();
+      // Check if this is Exchange Conference SN6
+      if (eventId === 'f47ac10b-58cc-4372-a567-0e02b2c3d479') {
+        // Fetch SN6 attendance data
+        const attendanceResponse = await fetch(`${api}exchange-sn6-attendance?date=${date}`);
+        if (!attendanceResponse.ok) {
+          throw new Error('Failed to fetch SN6 attendance data');
+        }
+        const attendanceData = await attendanceResponse.json();
 
-      // Fetch total number of MemberEvent instances
-      const membersResponse = await fetch(`${api}member-event`);
-      if (!membersResponse.ok) {
-        throw new Error('Failed to fetch members data');
+        // Fetch SN6 registrations
+        const membersResponse = await fetch(`${api}exchange-sn6/`);
+        if (!membersResponse.ok) {
+          throw new Error('Failed to fetch SN6 members data');
+        }
+        const membersData = await membersResponse.json();
+        
+        setAttendance(attendanceData);
+        setFilteredAttendees(attendanceData);
+      } else {
+        // Fetch all EventAttendance records for the date
+        const attendanceResponse = await fetch(`${api}event-attendance?date=${date}`);
+        if (!attendanceResponse.ok) {
+          throw new Error('Failed to fetch attendance data');
+        }
+        const attendanceData = await attendanceResponse.json();
+
+        // Fetch total number of MemberEvent instances
+        const membersResponse = await fetch(`${api}member-event`);
+        if (!membersResponse.ok) {
+          throw new Error('Failed to fetch members data');
+        }
+        const membersData = await membersResponse.json();
+        
+        setAttendance(attendanceData);
+        setFilteredAttendees(attendanceData);
       }
-      const membersData = await membersResponse.json();
 
       // Check if all members have an EventAttendance record
       if (attendanceData.length < membersData.length) {
